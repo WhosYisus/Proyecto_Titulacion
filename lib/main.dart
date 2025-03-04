@@ -19,7 +19,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,6 @@ class MyApp extends StatelessWidget {
           primary: AppColors.primary,
           secondary: AppColors.secondary,
           tertiary: AppColors.tertiary,
-          background: AppColors.backgroundLight,
           surface: AppColors.surfaceLight,
           error: AppColors.error,
         ),
@@ -58,7 +57,6 @@ class MyApp extends StatelessWidget {
           primary: AppColors.primary,
           secondary: AppColors.secondary,
           tertiary: AppColors.tertiary,
-          background: AppColors.backgroundDark,
           surface: AppColors.surfaceDark,
           error: AppColors.error,
         ),

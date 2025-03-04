@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../models/transcription.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TranscriptionProvider with ChangeNotifier {
   final SpeechToText _speech = SpeechToText();
@@ -13,6 +14,7 @@ class TranscriptionProvider with ChangeNotifier {
   List<Transcription> get transcriptions => List.unmodifiable(_transcriptions);
 
   Future<void> startRecording() async {
+  if (await Permission.microphone.request().isGranted) {
     if (!_isRecording) {
       try {
         bool available = await _speech.initialize(
@@ -42,7 +44,10 @@ class TranscriptionProvider with ChangeNotifier {
         notifyListeners();
       }
     }
+  } else {
+    debugPrint("Permiso de micrófono denegado.");
   }
+}
 
   Future<void> stopRecording() async {
     if (_isRecording) {

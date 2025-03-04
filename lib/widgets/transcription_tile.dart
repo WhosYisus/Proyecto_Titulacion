@@ -1,7 +1,13 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:open_file/open_file.dart';
+import 'dart:html' as html;
 import '../models/transcription.dart';
 import '../constants/colors.dart';
-import 'package:share_plus/share_plus.dart';
 
 class TranscriptionTile extends StatelessWidget {
   final Transcription transcription;
@@ -10,6 +16,57 @@ class TranscriptionTile extends StatelessWidget {
     Key? key,
     required this.transcription,
   }) : super(key: key);
+
+  Future<void> _downloadFile(BuildContext context) async {
+    if (kIsWeb) {
+      // 📌 Código para Flutter Web (descargar archivo en el navegador)
+      final blob = html.Blob([utf8.encode(transcription.text)]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..setAttribute("download", "transcription_${transcription.dateTime.toIso8601String()}.txt")
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    } else {
+      // 📌 Código para Android
+      try {
+        // Pedir permisos de almacenamiento
+        var status = await Permission.storage.request();
+        if (!status.isGranted) {
+          _showSnackBar(context, 'Permiso de almacenamiento denegado.');
+          return;
+        }
+
+        // Obtener directorio de almacenamiento
+        Directory? directory = await getExternalStorageDirectory();
+        if (directory == null) {
+          _showSnackBar(context, 'Error al acceder al almacenamiento.');
+          return;
+        }
+
+        // Crear archivo
+        String fileName = 'transcription_${transcription.dateTime.toIso8601String()}.txt';
+        String filePath = '${directory.path}/$fileName';
+        File file = File(filePath);
+        await file.writeAsString(transcription.text);
+
+        // Notificar al usuario y permitir abrir el archivo
+        _showSnackBar(context, 'Archivo guardado en: $filePath');
+        OpenFile.open(filePath);
+      } catch (e) {
+        debugPrint('Error al guardar archivo: $e');
+        _showSnackBar(context, 'Error al guardar archivo.');
+      }
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,73 +86,21 @@ class TranscriptionTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          transcription.dateTime.toString().split('.')[0],
+          '${transcription.dateTime.day}/${transcription.dateTime.month}/${transcription.dateTime.year}',
           style: TextStyle(
             color: isDark 
               ? AppColors.textSecondaryDark 
               : AppColors.textSecondaryLight,
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.visibility,
-                color: AppColors.primary,
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    backgroundColor: isDark 
-                      ? AppColors.surfaceDark 
-                      : AppColors.surfaceLight,
-                    title: Text(
-                      'Transcription',
-                      style: TextStyle(
-                        color: isDark 
-                          ? AppColors.textPrimaryDark 
-                          : AppColors.textPrimaryLight,
-                      ),
-                    ),
-                    content: SingleChildScrollView(
-                      child: Text(
-                        transcription.text,
-                        style: TextStyle(
-                          color: isDark 
-                            ? AppColors.textPrimaryDark 
-                            : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          'Close',
-                          style: TextStyle(color: AppColors.primary),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.download,
-                color: AppColors.primary,
-              ),
-              onPressed: () async {
-                final text = transcription.text;
-                await Share.share(text);
-              },
-            ),
-          ],
+        trailing: IconButton(
+          icon: Icon(
+            Icons.download,
+            color: AppColors.primary,
+          ),
+          onPressed: () => _downloadFile(context),
         ),
       ),
     );
   }
 }
-

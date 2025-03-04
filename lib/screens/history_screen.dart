@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../providers/transcription_provider.dart';
 import '../widgets/transcription_tile.dart';
 
+
+
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

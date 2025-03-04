@@ -5,7 +5,7 @@ import '../providers/settings_provider.dart';
 import '../constants/colors.dart';
 
 class TranscriptionDisplay extends StatelessWidget {
-  const TranscriptionDisplay({Key? key}) : super(key: key);
+  const TranscriptionDisplay({super.key});
 
   @override
   Widget build(BuildContext context) {

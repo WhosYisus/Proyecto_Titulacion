@@ -4,7 +4,7 @@ import '../providers/transcription_provider.dart';
 import '../constants/colors.dart';
 
 class RecordingButton extends StatelessWidget {
-  const RecordingButton({Key? key}) : super(key: key);
+  const RecordingButton({super.key});
 
   @override
   Widget build(BuildContext context) {

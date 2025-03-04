@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/transcription_provider.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/recording_button.dart';
 import '../widgets/transcription_display.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
