@@ -6,11 +6,11 @@ class SettingsProvider with ChangeNotifier {
   SharedPreferences? _prefs;
   double _fontSize = 16;
   String _fontFamily = 'Poppins';
-  bool _isDarkMode = false;
+  
 
   double get fontSize => _fontSize;
   String get fontFamily => _fontFamily;
-  bool get isDarkMode => _isDarkMode;
+  
 
   SettingsProvider() {
     _initializePrefs();
@@ -24,7 +24,7 @@ class SettingsProvider with ChangeNotifier {
   void _loadSettings() {
     _fontSize = _prefs?.getDouble('fontSize') ?? 16;
     _fontFamily = _prefs?.getString('fontFamily') ?? 'Poppins';
-    _isDarkMode = _prefs?.getBool('isDarkMode') ?? false;
+    
     notifyListeners();
   }
 
@@ -40,10 +40,6 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setDarkMode(bool value) async {
-    _isDarkMode = value;
-    await _prefs?.setBool('isDarkMode', value);
-    notifyListeners();
-  }
+  
 }
 

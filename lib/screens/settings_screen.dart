@@ -42,11 +42,7 @@ class SettingsScreen extends StatelessWidget {
                   onChanged: (value) => settings.setFontFamily(value!),
                 ),
               ),
-              SwitchListTile(
-                title: const Text('Dark Mode'),
-                value: settings.isDarkMode,
-                onChanged: (value) => settings.setDarkMode(value),
-              ),
+              
             ],
           );
         },
