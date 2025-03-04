@@ -4,7 +4,7 @@ import '../models/transcription.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class TranscriptionProvider with ChangeNotifier {
-  final SpeechToText _speech = SpeechToText();
+final SpeechToText _speech = SpeechToText();
   bool _isRecording = false;
   String _currentText = '';
   final List<Transcription> _transcriptions = [];
@@ -14,7 +14,6 @@ class TranscriptionProvider with ChangeNotifier {
   List<Transcription> get transcriptions => List.unmodifiable(_transcriptions);
 
   Future<void> startRecording() async {
-  if (await Permission.microphone.request().isGranted) {
     if (!_isRecording) {
       try {
         bool available = await _speech.initialize(
@@ -44,10 +43,7 @@ class TranscriptionProvider with ChangeNotifier {
         notifyListeners();
       }
     }
-  } else {
-    debugPrint("Permiso de micrófono denegado.");
   }
-}
 
   Future<void> stopRecording() async {
     if (_isRecording) {
@@ -58,6 +54,7 @@ class TranscriptionProvider with ChangeNotifier {
         _transcriptions.insert(
           0,
           Transcription(
+            title: "Grabación ${_transcriptions.length + 1}",
             text: _currentText,
             dateTime: DateTime.now(),
           ),
@@ -68,6 +65,20 @@ class TranscriptionProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void updateTitle(int index, String newTitle) {
+    if (index >= 0 && index < _transcriptions.length) {
+      _transcriptions[index] = Transcription(
+        title: newTitle,
+        text: _transcriptions[index].text,
+        dateTime: _transcriptions[index].dateTime,
+      );
+      notifyListeners();
+    }
+  }
+
+
+
 
   void showErrorDialog(BuildContext context) {
     showDialog(
