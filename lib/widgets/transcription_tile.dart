@@ -103,6 +103,33 @@ class TranscriptionTile extends StatelessWidget {
     }
   }
 
+
+
+  void _confirmDelete(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Eliminar Grabación"),
+      content: const Text("¿Estás seguro de que deseas eliminar esta grabación? Esta acción no se puede deshacer."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancelar"),
+        ),
+        TextButton(
+          onPressed: () {
+            Provider.of<TranscriptionProvider>(context, listen: false)
+                .deleteTranscription(index);
+            Navigator.pop(context);
+          },
+          child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -147,6 +174,10 @@ class TranscriptionTile extends StatelessWidget {
               icon: const Icon(Icons.download),
               onPressed: () => _downloadFile(context),
             ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _confirmDelete(context),
+              ),
           ],
         ),
       ),

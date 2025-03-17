@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';  
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
 import 'providers/transcription_provider.dart';
@@ -7,6 +8,8 @@ import 'constants/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter(); // 🔹 Inicializa Hive
+  await Hive.openBox('transcriptions'); // 🔹 Abre la base de datos
   runApp(
     MultiProvider(
       providers: [
