@@ -79,27 +79,26 @@ final SpeechToText _speech = SpeechToText();
     _transcriptions.clear(); // 🔹 Limpiar la lista antes de cargar datos
     for (var data in transcriptionsData) {
       _transcriptions.add(Transcription(
-        title: data["title"],
+        title: data["title"], // 🔹 Asegurar que el título se carga correctamente
         text: data["text"],
         dateTime: DateTime.parse(data["dateTime"]),
       ));
     }
     notifyListeners();
+   }
   }
-}
 
-
+ TranscriptionProvider() {
+  loadTranscriptions();
+  }
 
   Future<void> saveTranscriptions() async {
   var box = Hive.box('transcriptions');
-  List<Map<String, dynamic>> transcriptionsMap = _transcriptions.map((transcription) {
-    return {
-      "title": transcription.title,
-      "text": transcription.text,
-      "dateTime": transcription.dateTime.toIso8601String(),
-    };
-  }).toList();
-  await box.put("transcriptions", transcriptionsMap);
+  await box.put("transcriptions", _transcriptions.map((t) => {
+    "title": t.title, // 🔹 Asegurar que se guarda el título correcto
+    "text": t.text,
+    "dateTime": t.dateTime.toIso8601String(),
+  }).toList());
   }
 
 
@@ -112,23 +111,17 @@ final SpeechToText _speech = SpeechToText();
   }
 
 
-
-  TranscriptionProvider() {
-  loadTranscriptions();
-}
-
-
-
   void updateTitle(int index, String newTitle) {
-    if (index >= 0 && index < _transcriptions.length) {
-      _transcriptions[index] = Transcription(
-        title: newTitle,
-        text: _transcriptions[index].text,
-        dateTime: _transcriptions[index].dateTime,
-      );
-      notifyListeners();
-    }
+  if (index >= 0 && index < _transcriptions.length) {
+    _transcriptions[index] = Transcription(
+      title: newTitle, // 🔹 Guardar el nuevo nombre
+      text: _transcriptions[index].text,
+      dateTime: _transcriptions[index].dateTime,
+    );
+    saveTranscriptions(); // 🔹 Guardar en Hive después de cambiar el título
+    notifyListeners();
   }
+}
 
 
 

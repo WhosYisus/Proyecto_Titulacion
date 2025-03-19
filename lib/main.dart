@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';  
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
 import 'providers/transcription_provider.dart';
 import 'providers/settings_provider.dart';
 import 'constants/colors.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter(); // 🔹 Inicializa Hive
-  await Hive.openBox('transcriptions'); // 🔹 Abre la base de datos
+  await Hive.initFlutter(); // 🔹 Inicializa Hive para Web y Android
+  if (kIsWeb) {
+    // 🔹 Para Web, abre Hive en el almacenamiento del navegador
+    await Hive.openBox('transcriptions');
+  } else {
+    // 🔹 Para Android, usa almacenamiento local
+    await Hive.openBox('transcriptions');
+  }
   runApp(
     MultiProvider(
       providers: [

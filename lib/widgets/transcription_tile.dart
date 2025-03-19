@@ -1,15 +1,18 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:open_file/open_file.dart';
-import 'dart:html' as html;
 import '../models/transcription.dart';
 import '../constants/colors.dart';
 import 'package:provider/provider.dart';
 import '../providers/transcription_provider.dart';
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../utils/file_saver.dart';
+
+
 
 class TranscriptionTile extends StatelessWidget {
   final Transcription transcription;
@@ -67,41 +70,12 @@ class TranscriptionTile extends StatelessWidget {
     );
   }
 
-  Future<void> _downloadFile(BuildContext context) async {
-    if (kIsWeb) {
-      final blob = html.Blob([utf8.encode(transcription.text)]);
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute("download", "transcription_${transcription.dateTime.toIso8601String()}.txt")
-        ..click();
-      html.Url.revokeObjectUrl(url);
-    } else {
-      try {
-        var status = await Permission.storage.request();
-        if (!status.isGranted) {
-          _showSnackBar(context, 'Permiso de almacenamiento denegado.');
-          return;
-        }
 
-        Directory? directory = await getExternalStorageDirectory();
-        if (directory == null) {
-          _showSnackBar(context, 'Error al acceder al almacenamiento.');
-          return;
-        }
 
-        String fileName = 'transcription_${transcription.dateTime.toIso8601String()}.txt';
-        String filePath = '${directory.path}/$fileName';
-        File file = File(filePath);
-        await file.writeAsString(transcription.text);
-
-        _showSnackBar(context, 'Archivo guardado en: $filePath');
-        OpenFile.open(filePath);
-      } catch (e) {
-        debugPrint('Error al guardar archivo: $e');
-        _showSnackBar(context, 'Error al guardar archivo.');
-      }
-    }
-  }
+  Future<void> downloadFile(BuildContext context) async {
+  String fileName = 'transcription${transcription.dateTime.toIso8601String()}';
+  await FileSaver.saveTextFile(transcription.text, fileName);
+}
 
 
 
@@ -172,7 +146,7 @@ class TranscriptionTile extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.download),
-              onPressed: () => _downloadFile(context),
+              onPressed: () => downloadFile(context),
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
