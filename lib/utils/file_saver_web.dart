@@ -4,7 +4,7 @@ import 'dart:html' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FileSaver {
-  static void saveTextFile(String text, String fileName) {
+  static Future<void> saveTextFile(String text, String fileName) async {
     if (!kIsWeb) return;
 
     final blob = html.Blob([utf8.encode(text)]);
