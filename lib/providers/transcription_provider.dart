@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import '../services/vosk_service.dart';
 import '../models/transcription.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
 class TranscriptionProvider with ChangeNotifier {
-final SpeechToText _speech = SpeechToText();
+
   bool _isRecording = false;
   String _currentText = '';
   final List<Transcription> _transcriptions = [];
@@ -16,58 +16,41 @@ final SpeechToText _speech = SpeechToText();
   List<Transcription> get transcriptions => List.unmodifiable(_transcriptions);
 
   Future<void> startRecording() async {
-    if (!_isRecording) {
-      try {
-        bool available = await _speech.initialize(
-          onStatus: (status) => debugPrint('Status: $status'),
-          onError: (error) => debugPrint('Error: $error'),
-        );
+  _isRecording = true;
+  notifyListeners();
 
-        if (available) {
-          await _speech.listen(
-            onResult: (result) {
-              _currentText = result.recognizedWords;
-              notifyListeners();
-            },
-            listenFor: const Duration(seconds: 300),
-            partialResults: true,
-            cancelOnError: true,
-            listenMode: ListenMode.dictation,
-          );
-          _isRecording = true;
-          notifyListeners();
-        } else {
-          debugPrint('El reconocimiento de voz no está disponible');
-        }
-      } catch (e) {
-        debugPrint('Error al iniciar la grabación: $e');
-        _isRecording = false;
-        notifyListeners();
-      }
-    }
-  }
+  VoskService.setPartialResultCallback((text) {
+    _currentText = text;
+    notifyListeners();
+  });
+
+  await VoskService.start();
+}
+
+
 
   Future<void> stopRecording() async {
-  if (_isRecording) {
-    await _speech.stop();
-    _isRecording = false;
+  final result = await VoskService.stop();
 
-    if (_currentText.isNotEmpty) {
-      _transcriptions.insert(
-        0,
-        Transcription(
-          title: "Grabación ${_transcriptions.length + 1}",
-          text: _currentText,
-          dateTime: DateTime.now(),
-        ),
-      );
-      _currentText = '';
-      await saveTranscriptions(); // 🔹 Guarda en Hive después de grabar
-    }
+  _isRecording = false;
 
-    notifyListeners();
+  if (result != null && result.isNotEmpty) {
+    _currentText = result;
+    _transcriptions.insert(
+      0,
+      Transcription(
+        title: "Grabación ${_transcriptions.length + 1}",
+        text: _currentText,
+        dateTime: DateTime.now(),
+      ),
+    );
+    await saveTranscriptions();
+    _currentText = '';
   }
+
+  notifyListeners();
 }
+
 
 
 

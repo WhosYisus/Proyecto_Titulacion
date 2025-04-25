@@ -19,6 +19,11 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    aaptOptions {
+        noCompress += "model"
+    }
+
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         
@@ -43,6 +48,13 @@ android {
             signingConfig = signingConfigs.getByName("debug") // Solo para pruebas
         }
     }
+
+
+    dependencies {
+        implementation("com.alphacephei:vosk-android:0.3.38")
+    }
+
+
 }
 
 flutter {
