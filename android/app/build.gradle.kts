@@ -54,6 +54,11 @@ android {
         implementation("com.alphacephei:vosk-android:0.3.38")
     }
 
+    sourceSets {
+    getByName("main") {
+        jniLibs.srcDirs("src/main/jniLibs")
+     }   
+    }
 
 }
 

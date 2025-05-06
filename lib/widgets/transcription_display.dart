@@ -42,7 +42,7 @@ class TranscriptionDisplay extends StatelessWidget {
             ),
             child: Text(
               transcription.currentText.isEmpty
-                  ? 'Tap and hold the microphone button to start recording...'
+                  ? 'Presiona el boton para grabar o detener la grabacion'
                   : transcription.currentText,
               textAlign: TextAlign.center,
             ),

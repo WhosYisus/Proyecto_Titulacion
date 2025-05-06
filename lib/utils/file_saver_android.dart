@@ -6,13 +6,21 @@ import 'package:open_file/open_file.dart';
 class FileSaver {
   static Future<void> saveTextFile(String text, String fileName) async {
     try {
-      var status = await Permission.storage.request();
+      var status = await Permission.manageExternalStorage.request(); // 🔥 Usa permiso correcto
+
       if (!status.isGranted) {
         print('Permiso de almacenamiento denegado.');
         return;
       }
 
-      Directory? directory = await getExternalStorageDirectory();
+      Directory? directory;
+      
+      if (Platform.isAndroid) {
+        directory = Directory('/storage/emulated/0/Download'); // 🔥 Guarda en Descargas
+      } else {
+        directory = await getExternalStorageDirectory();
+      }
+
       if (directory == null) {
         print('Error al acceder al almacenamiento.');
         return;
@@ -20,10 +28,13 @@ class FileSaver {
 
       String filePath = '${directory.path}/$fileName.txt';
       File file = File(filePath);
+
       await file.writeAsString(text);
 
       print('Archivo guardado en: $filePath');
-      OpenFile.open(filePath);
+
+      await OpenFile.open(filePath); // 🔥 Intenta abrir el archivo
+
     } catch (e) {
       print('Error al guardar archivo: $e');
     }

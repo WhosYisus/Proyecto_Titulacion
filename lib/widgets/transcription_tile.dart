@@ -1,117 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'package:open_file/open_file.dart';
-import '../models/transcription.dart';
-import '../constants/colors.dart';
 import 'package:provider/provider.dart';
 import '../providers/transcription_provider.dart';
-import 'dart:io' as io;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../models/transcription.dart';
+import '../screens/view_transcription_screen.dart'; // 🔥 Nueva pantalla
 import '../utils/file_saver.dart';
-
-
 
 class TranscriptionTile extends StatelessWidget {
   final Transcription transcription;
   final int index;
 
-  const TranscriptionTile({
-    Key? key,
-    required this.transcription,
-    required this.index,
-  }) : super(key: key);
-
-  Future<void> _editTitle(BuildContext context) async {
-    TextEditingController controller = TextEditingController(text: transcription.title);
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Editar Título"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: "Nuevo título"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              Provider.of<TranscriptionProvider>(context, listen: false)
-                  .updateTitle(index, controller.text);
-              Navigator.pop(context);
-            },
-            child: const Text("Guardar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTranscriptionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(transcription.title),
-        content: SingleChildScrollView(
-          child: Text(transcription.text),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cerrar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-  Future<void> downloadFile(BuildContext context) async {
-  String fileName = 'transcription${transcription.dateTime.toIso8601String()}';
-  await FileSaver.saveTextFile(transcription.text, fileName);
-}
-
-
-
-  void _confirmDelete(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Eliminar Grabación"),
-      content: const Text("¿Estás seguro de que deseas eliminar esta grabación? Esta acción no se puede deshacer."),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Cancelar"),
-        ),
-        TextButton(
-          onPressed: () {
-            Provider.of<TranscriptionProvider>(context, listen: false)
-                .deleteTranscription(index);
-            Navigator.pop(context);
-          },
-          child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
+  const TranscriptionTile({Key? key, required this.transcription, required this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -119,42 +17,140 @@ class TranscriptionTile extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        title: Text(
-          transcription.title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+      child: InkWell(
+        onTap: () {
+          // 🔥 Ir a la pantalla de visualización detallada
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewTranscriptionScreen(transcription: transcription),
+            ),
+          );
+        },
+        onLongPress: () {
+          // 🔥 Mostrar opciones al mantener presionado
+          _showOptions(context);
+        },
+        child: ListTile(
+          title: Text(
+            transcription.title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
           ),
-        ),
-        subtitle: Text(
-          '${transcription.dateTime.day}/${transcription.dateTime.month}/${transcription.dateTime.year}',
-          style: TextStyle(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          subtitle: Text(
+            '${transcription.dateTime.day}/${transcription.dateTime.month}/${transcription.dateTime.year}',
+            style: TextStyle(
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
+            ),
           ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => _editTitle(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.visibility),
-              onPressed: () => _showTranscriptionDialog(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: () => downloadFile(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => _confirmDelete(context),
-              ),
-          ],
         ),
       ),
     );
   }
+
+  void _showOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Wrap(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Editar título'),
+            onTap: () {
+              Navigator.pop(context);
+              _editTitle(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.visibility),
+            title: const Text('Ver grabación'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewTranscriptionScreen(transcription: transcription),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.download),
+            title: const Text('Descargar'),
+            onTap: () async {
+              Navigator.pop(context);
+              await FileSaver.saveTextFile(transcription.text, transcription.title);
+            },
+          ),
+          ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Eliminar'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDelete(context);
+                },
+          ),
+
+        ],
+      ),
+    );
+  }
+
+  void _editTitle(BuildContext context) {
+    final TextEditingController controller = TextEditingController(text: transcription.title);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Editar Título'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'Nuevo título'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Provider.of<TranscriptionProvider>(context, listen: false)
+                  .updateTitle(index, controller.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+    void _confirmDelete(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar esta grabación?'),
+        content: const Text('Esta acción no se puede deshacer. ¿Deseas continuar?'),
+        actions: [
+          TextButton(
+            child: const Text('Cancelar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              Provider.of<TranscriptionProvider>(context, listen: false)
+                  .deleteTranscription(index);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
 }

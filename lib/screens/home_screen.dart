@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Voice Notes',
+                    'APP',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   Row(
