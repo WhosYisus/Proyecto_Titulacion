@@ -217,9 +217,21 @@ String cleanText(String text) {
       },
     );
   }
-}
 
 
-String cleanText(String text) {
-  return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  void updateText(int index, String newText) {
+    if (index >= 0 && index < _transcriptions.length) {
+      _transcriptions[index] = Transcription(
+        title: _transcriptions[index].title,
+        text: newText,
+        dateTime: _transcriptions[index].dateTime,
+      );
+      saveTranscriptions(); // 🔄 Guardar en Hive
+      notifyListeners();    // 🔔 Notificar cambio a la UI
+    }
+  }
+
+
+
 }
+

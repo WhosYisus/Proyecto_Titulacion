@@ -23,7 +23,10 @@ class TranscriptionTile extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ViewTranscriptionScreen(transcription: transcription),
+              builder: (context) => ViewTranscriptionScreen(
+                  transcription: transcription,
+                  index: index,
+                ),
             ),
           );
         },
@@ -71,7 +74,10 @@ class TranscriptionTile extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewTranscriptionScreen(transcription: transcription),
+                  builder: (context) => ViewTranscriptionScreen(
+                  transcription: transcription,
+                  index: index,
+                ),
                 ),
               );
             },

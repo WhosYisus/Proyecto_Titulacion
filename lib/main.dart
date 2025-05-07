@@ -8,17 +8,25 @@ import 'providers/settings_provider.dart';
 import 'constants/colors.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter(); // 🔹 Inicializa Hive para Web y Android
+  
+  // 🔥 Cargar variables de entorno
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("❌ Error cargando .env: $e");
+  }
+  
+  await Hive.initFlutter();
   if (kIsWeb) {
-    // 🔹 Para Web, abre Hive en el almacenamiento del navegador
     await Hive.openBox('transcriptions');
   } else {
-    // 🔹 Para Android, usa almacenamiento local
     await Hive.openBox('transcriptions');
   }
+
   runApp(
     MultiProvider(
       providers: [
@@ -29,6 +37,7 @@ void main() async {
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
