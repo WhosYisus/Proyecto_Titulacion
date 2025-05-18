@@ -100,8 +100,8 @@ class TranscriptionProvider with ChangeNotifier {
               _lastRecognizedTime = now;
             }
           },
-          listenFor: const Duration(minutes: 5),
-          pauseFor: const Duration(minutes: 5),
+          listenFor: const Duration(minutes: 45),
+          pauseFor: const Duration(minutes: 15),
           partialResults: true,
           cancelOnError: false,
           listenMode: ListenMode.dictation,
