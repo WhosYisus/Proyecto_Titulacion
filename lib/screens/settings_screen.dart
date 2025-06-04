@@ -43,6 +43,14 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               
+              ListTile(
+                  title: const Text('Modo oscuro'),
+                  trailing: Switch(
+                    value: settings.isDarkMode,
+                    onChanged: (_) => settings.toggleDarkMode(),
+                  ),
+              ),
+
             ],
           );
         },

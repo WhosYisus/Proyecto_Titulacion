@@ -17,7 +17,7 @@ void main() async {
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    debugPrint("❌ Error cargando .env: $e");
+    debugPrint("Error cargando .env: $e");
   }
   
   await Hive.initFlutter();
@@ -44,62 +44,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+
     return MaterialApp(
       title: 'Voice Notes',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.light(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          tertiary: AppColors.tertiary,
-          surface: AppColors.surfaceLight,
-          error: AppColors.error,
-        ),
-        scaffoldBackgroundColor: AppColors.backgroundLight,
-        textTheme: TextTheme(
-          headlineMedium: TextStyle(
-            color: AppColors.textPrimaryLight,
-            fontWeight: FontWeight.bold,
-          ),
-          bodyLarge: TextStyle(color: AppColors.textPrimaryLight),
-          bodyMedium: TextStyle(color: AppColors.textSecondaryLight),
-        ),
-        cardTheme: CardTheme(
-          color: AppColors.surfaceLight,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.dark(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          tertiary: AppColors.tertiary,
-          surface: AppColors.surfaceDark,
-          error: AppColors.error,
-        ),
-        scaffoldBackgroundColor: AppColors.backgroundDark,
-        textTheme: TextTheme(
-          headlineMedium: TextStyle(
-            color: AppColors.textPrimaryDark,
-            fontWeight: FontWeight.bold,
-          ),
-          bodyLarge: TextStyle(color: AppColors.textPrimaryDark),
-          bodyMedium: TextStyle(color: AppColors.textSecondaryDark),
-        ),
-        cardTheme: CardTheme(
-          color: AppColors.surfaceDark,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const HomeScreen(),
     );
   }
 }
+
 
